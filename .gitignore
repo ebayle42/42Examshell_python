@@ -1,0 +1,6 @@
+rendu/
+trace/
+__pycache__/
+*.pyc
+.resources/.lang
+.DS_Store
