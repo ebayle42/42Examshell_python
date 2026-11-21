@@ -33,7 +33,7 @@ label() {
     printf "${BG_BLUE}${WHITE}%s${RESET}\n" "██╔══╝   ██╔██╗ ██╔══██║██║╚██╔╝██║   ██╔═══╝   ╚██╔╝  "
     printf "${BG_BLUE}${WHITE}%s${RESET}\n" "███████╗██╔╝ ██╗██║  ██║██║ ╚═╝ ██║██╗██║        ██║   "
     printf "${BG_BLUE}${WHITE}%s${RESET}\n" "╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚═╝╚═╝        ╚═╝   "
-    printf "${BOLD}${WHITE}%s${RESET}\n\n" " 42 Python Exam Practice · Level Mode & Real Exam Mode"
+    printf "${BOLD}${WHITE}%s${RESET}\n\n" " 42 Exam Practice (C & Python) · Level Mode & Real Exam Mode"
 }
 
 # ------------------------------------------------------------------ language
@@ -83,19 +83,37 @@ show_subject() {  # $1 = subject dir
     printf "${RESET}"
 }
 
-prepare_rendu() {  # $1 = subject dir ; creates rendu/<subject>/<file>
-    local name file
+rank_lang() {  # Python or C
+    if [ -n "$(find "$RES_DIR/$1" -name main.c -o -type d -name ref 2>/dev/null | head -1)" ]; then
+        echo C
+    else
+        echo Python
+    fi
+}
+
+prepare_rendu() {  # $1 = subject dir ; creates rendu/<subject>/ with the expected files
+    local name f
     name="$(basename "$1")"
-    file="$(expected_file "$1")"
     mkdir -p "$RENDU_DIR/$name"
-    [ -f "$RENDU_DIR/$name/$file" ] || touch "$RENDU_DIR/$name/$file"
+    expected_file "$1" | tr ',' '\n' | while read -r f; do
+        case "$f" in
+            "") continue ;;
+            "*.c") f="$name.c" ;;
+            "*"*) continue ;;
+        esac
+        [ -f "$RENDU_DIR/$name/$f" ] || touch "$RENDU_DIR/$name/$f"
+    done
+    if [ -d "$1/given" ]; then
+        for f in "$1"/given/*; do
+            [ -f "$RENDU_DIR/$name/$(basename "$f")" ] || cp "$f" "$RENDU_DIR/$name/"
+        done
+    fi
 }
 
 # Run the tester of a subject. Returns 0 if PASSED.
 run_test() {  # $1 = subject dir
     local code
-    printf "${CYAN}Testing ${BOLD}rendu/%s/%s${RESET}${CYAN} ...${RESET}\n\n" \
-        "$(basename "$1")" "$(expected_file "$1")"
+    printf "${CYAN}Testing ${BOLD}rendu/%s/${RESET}${CYAN} ...${RESET}\n\n" "$(basename "$1")"
     FORCE_COLOR=1 "$PYTHON" "$1/tester.py"
     code=$?
     find "$RENDU_DIR" -name "__pycache__" -type d -prune -exec rm -rf {} + 2>/dev/null
@@ -129,6 +147,10 @@ archive_rendu() {
 }
 
 check_python() {
+    if ! command -v cc >/dev/null 2>&1; then
+        printf "${YELLOW}Warning: no C compiler (cc) found: Rank 02 tests will not work.${RESET}\n"
+        sleep 2
+    fi
     if ! command -v "$PYTHON" >/dev/null 2>&1; then
         printf "${RED}python3 is required but was not found.${RESET}\n"
         exit 1

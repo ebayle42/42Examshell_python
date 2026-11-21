@@ -28,13 +28,14 @@ main_menu() {
         clear_screen
         label
         printf "${CYAN}%s${RESET}\n" "╔═══════════════════════════════════════════════════════════╗"
-        printf "${CYAN}║${GREEN}%s${CYAN}║${RESET}\n" "   ⚡ EXAM 42 PRACTICE · NEW CURRICULUM (PYTHON) · MENU ⚡   "
+        printf "${CYAN}║${GREEN}%s${CYAN}║${RESET}\n" "      ⚡ EXAM 42 PRACTICE · C & PYTHON (NEW CURRICULUM) ⚡     "
         printf "${CYAN}%s${RESET}\n" "╠═══════════════════════════════════════════════════════════╣"
         printf "${YELLOW}${BOLD}%s${RESET}\n" "📖 1. Commands"
         idx=2
         for r in "${ranks[@]}"; do
-            printf "${YELLOW}${BOLD}🐍 %d. Exam Rank %s${RESET}  ${DIM}(%s subjects, %s levels)${RESET}\n" \
-                "$idx" "$(rank_label "$r")" "$(count_subjects "$r")" "$(list_levels "$r" | wc -l | tr -d ' ')"
+            printf "${YELLOW}${BOLD}%s %d. Exam Rank %s (%s)${RESET}  ${DIM}(%s subjects, %s levels)${RESET}\n" \
+                "$( [ "$(rank_lang "$r")" = C ] && echo "⚙️ " || echo "🐍")" "$idx" "$(rank_label "$r")" \
+                "$(rank_lang "$r")" "$(count_subjects "$r")" "$(list_levels "$r" | wc -l | tr -d ' ')"
             idx=$((idx + 1))
         done
         printf "${YELLOW}${BOLD}📁 %d. Open Rendu Folder${RESET}\n" "$idx"

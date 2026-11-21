@@ -25,7 +25,7 @@ level_mode() {  # $1 = rank, $2 = level
         dir="$(subject_dir "$rank" "$level" "${subjects[$i]}")"
         prepare_rendu "$dir"
         clear_screen
-        printf "${CYAN}${BOLD}Rank %s · %s · subject %d/%d${RESET}   ${DIM}write your code in rendu/%s/%s${RESET}\n" \
+        printf "${CYAN}${BOLD}Rank %s · %s · subject %d/%d${RESET}   ${DIM}write your code in rendu/%s/ (%s)${RESET}\n" \
             "$(rank_label "$rank")" "$level" $((i + 1)) "$n" "${subjects[$i]}" "$(expected_file "$dir")"
         printf "${BLUE}%s${RESET}\n" "================================================================================"
         show_subject "$dir"
@@ -61,7 +61,7 @@ choose_level() {  # $1 = rank
         clear_screen
         label
         printf "${BLUE}%s${RESET}\n" "┌─────────────────────────────────────────────────────────┐"
-        printf "${BLUE}│${GREEN}  🎯 Choose your practice level for Exam Rank %s (Python) ${BLUE}│${RESET}\n" "$(rank_label "$rank")"
+        printf "${BLUE}│${GREEN}  🎯 Choose your practice level for Exam Rank %s (%s) ${BLUE}│${RESET}\n" "$(rank_label "$rank")" "$(rank_lang "$rank")"
         printf "${BLUE}%s${RESET}\n" "└─────────────────────────────────────────────────────────┘"
         idx=1
         for l in "${levels[@]}"; do
@@ -92,7 +92,7 @@ real_mode() {  # $1 = rank
     rm -rf "$RENDU_DIR"
     clear_screen
     label
-    printf "${GREEN}${BOLD}🧪 Welcome to the Exam Rank %s (Python) — Real Exam Mode${RESET}\n" "$(rank_label "$rank")"
+    printf "${GREEN}${BOLD}🧪 Welcome to the Exam Rank %s (%s) — Real Exam Mode${RESET}\n" "$(rank_label "$rank")" "$(rank_lang "$rank")"
     printf "%s\n" "=================================================="
     printf "You will get one random subject per level: %d levels to validate.\n" "$n"
     printf "Pass a subject to unlock the next level. Your work goes in ${BOLD}rendu/${RESET}.\n\n"
@@ -114,7 +114,7 @@ real_mode() {  # $1 = rank
             clear_screen
             printf "${MAGENTA}${BOLD}REAL EXAM · Rank %s · Level %d/%d${RESET}   ${DIM}time %s · attempts %d${RESET}\n" \
                 "$(rank_label "$rank")" $((k + 1)) "$n" "$(format_duration "$elapsed")" "$attempts"
-            printf "${DIM}write your code in rendu/%s/%s${RESET}\n" "$chosen" "$(expected_file "$dir")"
+            printf "${DIM}write your code in rendu/%s/ (%s)${RESET}\n" "$chosen" "$(expected_file "$dir")"
             printf "${BLUE}%s${RESET}\n" "================================================================================"
             show_subject "$dir"
             printf "${BLUE}%s${RESET}\n" "================================================================================"
@@ -160,11 +160,13 @@ real_mode() {  # $1 = rank
 }
 
 rank_menu() {  # $1 = rank
-    local rank="$1" opt
+    local rank="$1" opt title pad
     while true; do
         clear_screen
         printf "${CYAN}%s${RESET}\n" "╔═══════════════════════════════════════════════════════════╗"
-        printf "${CYAN}║${GREEN}          🐍 EXAM RANK %s (PYTHON) - MODE SELECTION          ${CYAN}║${RESET}\n" "$(rank_label "$rank")"
+        title="EXAM RANK $(rank_label "$rank") ($(rank_lang "$rank")) - MODE SELECTION"
+        pad=$(( (59 - ${#title}) / 2 ))
+        printf "${CYAN}║${GREEN}%*s%s%*s${CYAN}║${RESET}\n" "$pad" "" "$title" $((59 - pad - ${#title})) ""
         printf "${CYAN}%s${RESET}\n" "╚═══════════════════════════════════════════════════════════╝"
         printf "${YELLOW}${BOLD}%s${RESET}\n" "1. Level Mode      (practice every subject of a level)"
         printf "${YELLOW}${BOLD}%s${RESET}\n" "2. Real Exam Mode  (one random subject per level, in order)"
@@ -192,9 +194,10 @@ help_screen() {
     echo "Type ${BLUE}'exit'${RESET} to exit the exam practice."
     echo "============================="
     echo
-    echo "Your files go in ${BOLD}rendu/<subject>/<file>.py${RESET} (the file is created for you)."
-    echo "Tests compare your function with a reference solution on the subject examples"
-    echo "plus hundreds of random inputs. Forbidden functions/modules are detected."
+    echo "Your files go in ${BOLD}rendu/<subject>/${RESET} (the expected files are created for you)."
+    echo "Tests compare your code with a reference solution on the subject examples"
+    echo "plus many random inputs. Forbidden functions/modules are detected."
+    echo "C (Rank 02) is compiled with: cc -Wall -Wextra -Werror"
     echo "When you leave, your rendu/ folder is saved in ${BOLD}trace/${RESET}."
     echo
     pause "Press enter to return to the menu: "
