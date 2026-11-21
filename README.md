@@ -31,7 +31,7 @@ with the subjects published on [42exam.net](https://42exam.net/)
 Install:
 
 ```sh
-git clone <this repository> 42_examshell_python
+git clone git@github.com:ebayle42/42Examshell_python.git
 ```
 ```sh
 cd 42_examshell_python
