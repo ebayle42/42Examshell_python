@@ -31,7 +31,7 @@ with the subjects published on [42exam.net](https://42exam.net/)
 Install:
 
 ```sh
-git clone git@github.com:ebayle42/42Examshell_python.git
+git clone <this repository> 42_examshell_python
 ```
 ```sh
 cd 42_examshell_python
@@ -98,10 +98,10 @@ many random inputs, and the first difference is shown with the expected and the 
 
 - Python : your function or class is imported and compared with the reference, forbidden
   functions and modules (`sorted()`, `.sort()`, `heapq`, `json`, `OrderedDict`,
-  `graphlib.TopologicalSorter`...) are detected by reading the code, 10 s time limit
+  `graphlib.TopologicalSorter`...) are detected by reading the code, 20 s time limit
 - C : compiled with `cc -Wall -Wextra -Werror`, the output is compared byte by byte and shown
   like `cat -e`, functions that are not in *Allowed functions* are detected with `nm`,
-  segfaults and infinite loops are reported, function exercises are linked with a test `main.c`
+  segfaults and infinite loops are reported (20 s time limit), function exercises are linked with a test `main.c`
 
 - when a subject leaves a detail open (order of the results, choice of the room...), every
   answer allowed by the subject is accepted

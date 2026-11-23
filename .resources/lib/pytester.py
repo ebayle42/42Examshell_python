@@ -24,7 +24,7 @@ import traceback
 
 sys.dont_write_bytecode = True
 
-TIME_LIMIT = 10  # seconds for the whole test run
+TIME_LIMIT = 20  # seconds for the whole test run
 
 if sys.stdout.isatty() or os.environ.get("FORCE_COLOR"):
     RED, GREEN, YELLOW, CYAN, BOLD, RESET = (

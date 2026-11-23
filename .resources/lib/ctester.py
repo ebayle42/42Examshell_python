@@ -21,12 +21,13 @@ import signal
 import subprocess
 import sys
 import tempfile
+import time
 
 sys.dont_write_bytecode = True
 
 CC = os.environ.get("CC", "cc")
 CFLAGS = ["-Wall", "-Wextra", "-Werror"]
-RUN_TIMEOUT = 3  # seconds per run
+TIME_LIMIT = 20  # seconds for all the runs of the test (compilation excluded)
 
 if sys.stdout.isatty() or os.environ.get("FORCE_COLOR"):
     RED, GREEN, YELLOW, BOLD, DIM, RESET = (
@@ -65,6 +66,7 @@ class CTester:
         self.given = os.path.join(self.dir, "given")
         self.tmp = tempfile.mkdtemp(prefix="examshell_")
         self.count = 0
+        self.deadline = None
         if not shutil.which(CC):
             self.fail(f"C compiler '{CC}' not found: install gcc or clang")
         sub = open(os.path.join(self.dir, "sub.txt"), encoding="utf8").read()
@@ -172,10 +174,15 @@ class CTester:
 
     def _run(self, binary, args, stdin=None):
         try:
-            res = subprocess.run([binary] + list(args), capture_output=True, timeout=RUN_TIMEOUT,
+            if self.deadline is None:
+                self.deadline = time.monotonic() + TIME_LIMIT
+            remaining = self.deadline - time.monotonic()
+            if remaining <= 0:
+                raise subprocess.TimeoutExpired(binary, 0)
+            res = subprocess.run([binary] + list(args), capture_output=True, timeout=remaining,
                                  input=stdin)
         except subprocess.TimeoutExpired:
-            return None, "TIMEOUT (infinite loop?)"
+            return None, f"TIMEOUT more than {TIME_LIMIT}s (infinite loop or too slow algorithm?)"
         if res.returncode < 0:
             try:
                 name = signal.Signals(-res.returncode).name
